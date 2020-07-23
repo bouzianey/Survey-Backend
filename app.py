@@ -15,23 +15,40 @@ def my_index():
 @cross_origin()
 def my_api_post():
     content = request.json
+    a = InstructorObj(1)
+    a.add_new_survey(content)
     #pprint.pprint(content)
     #s = SurveyObj(content["survey"], content["instructor"], content["questionList"])
     #s.add_survey()
 
-    a = SurveyFillObj(3, "CSC330", "Dr.Imad")
+    #a = SurveyFillObj(3)
+    #a.construct_survey()
+    return ""
+
+
+@app.route('/get_api', methods=['POST'])
+@cross_origin()
+def get_api():
+    idx = request.json
+    a = SurveyFillObj(idx)
     a.construct_survey()
-    #for i in a.get_question_list():
-     #   if i.get_type() == "radio":
-      #      for j in i.get_option_list():
-       #         print("radio :  ", j.get_content(), "label :", j.get_label())
 
-        #else:
-         #   print("text :  ", i.get_content(), "label :", i.get_label())
-    #pprint.pprint(a.get_survey_dict())
-
-    return jsonify(a.get_survey_dict())
+    #return jsonify(a.get_survey_dict(3))
+    return jsonify(a.get_survey_dict_plain())
 
 
+@app.route('/get_survey_response', methods=['POST'])
+@cross_origin()
+def get_survey_response():
+
+    return jsonify("")
+
+
+@app.route('/get_survey_list', methods=['GET'])
+@cross_origin()
+def get_survey_list():
+
+    a = InstructorObj(1)
+    return jsonify(a.get_survey_list())
 
 

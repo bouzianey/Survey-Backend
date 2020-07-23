@@ -63,10 +63,12 @@ class QuestionObj:
 
 class SurveyFillObj:
 
-    def __init__(self, att1, att2, att3):
+    def __init__(self, att1):
+
         self.surveyID = att1
-        self.surveyName = att2
-        self.instructorName = att3
+        q = db.session.query(Survey).filter(Survey.surveyID == att1).first()
+        self.surveyName = q.get_name()
+        self.instructorName = q.get_instructor()
         self.questionList = []
 
     def construct_survey(self):
@@ -78,7 +80,7 @@ class SurveyFillObj:
                                                      i.get_content(), i.get_survey_id()))
         return ""
 
-    def get_survey_dict(self):
+    def get_survey_dict_plain(self):
 
         survey_dict = {
             "InstructorName": self.instructorName,
@@ -104,7 +106,6 @@ class SurveyFillObj:
                 option_dict_array = []
 
                 for j in i.get_option_list():
-
                     option_dict = {
                         "label": j.get_label(),
                         "content": j.get_content(),
@@ -115,6 +116,81 @@ class SurveyFillObj:
                 question_dict.update({"options": option_dict_array})
 
             question_dict_array.append(question_dict)
+
+        survey_dict.update({"questionList": question_dict_array})
+
+        return survey_dict
+
+    def get_survey_dict(self, studentid):
+
+        x = db.session.query(User.teamID).filter(User.userID == studentid).first()
+        student_list = db.session.query(User).filter(User.teamID == x[0]).filter(User.userID != studentid).all()
+
+        survey_dict = {
+            "InstructorName": self.instructorName,
+            "survey_id": self.surveyID,
+            "surveyName": self.surveyName,
+            "studentid": studentid,
+            "questionList": []
+        }
+
+        question_dict_array = []
+
+        for i in self.questionList:
+
+            if i.get_repetition() == "multiple":
+                for exp in student_list:
+                    question_dict = {
+                        "id": i.get_id(),
+                        "student_id": exp.get_id(),
+                        "student_name": exp.get_team_name(),
+                        "type": i.get_type(),
+                        "repetition": i.get_repetition(),
+                        "label": i.get_label(),
+                        "content": i.get_content(),
+                        "survey_id": i.get_survey_id(),
+                    }
+                    if i.get_type() == "radio":
+
+                        option_dict_array = []
+
+                        for j in i.get_option_list():
+                            option_dict = {
+                                "label": j.get_label(),
+                                "content": j.get_content(),
+                                "question_id": j.get_question_id()
+                            }
+                            option_dict_array.append(option_dict)
+                        question_dict.update({"options": []})
+                        question_dict.update({"options": option_dict_array})
+                    question_dict_array.append(question_dict)
+
+            else:
+
+                question_dict = {
+                    "id": i.get_id(),
+                    "type": i.get_type(),
+                    "repetition": i.get_repetition(),
+                    "label": i.get_label(),
+                    "content": i.get_content(),
+                    "survey_id": i.get_survey_id(),
+                }
+                if i.get_type() == "radio":
+
+                    option_dict_array = []
+
+                    for j in i.get_option_list():
+
+                        option_dict = {
+                            "label": j.get_label(),
+                            "content": j.get_content(),
+                            "question_id": j.get_question_id()
+                        }
+                        option_dict_array.append(option_dict)
+                    question_dict.update({"options": []})
+                    question_dict.update({"options": option_dict_array})
+
+                question_dict_array.append(question_dict)
 
         survey_dict.update({"questionList": question_dict_array})
 
@@ -135,20 +211,21 @@ class SurveyFillObj:
 
 class SurveyObj:
 
-    def __init__(self, att1, att2, att3):
+    def __init__(self, att1, att2, att3, att4):
         self.surveyName = att1
-        self.InstructorName = att2
+        self.instructorName = att2
+        self.instructorID = att4
         self.questionList = att3
 
     def add_survey(self):
-        s = Survey(instructorName=self.InstructorName, name=self.surveyName)
+        s = Survey(instructorName=self.instructorName, name=self.surveyName, instructorID=self.instructorID)
         db.session.add(s)
         db.session.commit()
         s_id = s.get_id()
         content = self.questionList
         for i in content:
             if i["type"] == "radio":
-                q = Question(label=i["label"], type=i["type"], repetition=i["Repetition"], content="empty",
+                q = Question(label=i["label"], type=i["type"], repetition=i["repetition"], content="empty",
                              surveyID=s_id)
                 db.session.add(q)
                 db.session.commit()
@@ -158,10 +235,80 @@ class SurveyObj:
                     db.session.add(q)
                     db.session.commit()
             else:
-                q = Question(label=i["label"], type=i["type"], repetition=i["Repetition"],
+                q = Question(label=i["label"], type=i["type"], repetition=i["repetition"],
                              content=i["content"], surveyID=s_id)
                 db.session.add(q)
                 db.session.commit()
+        return ""
+
+
+class InstructorObj:
+
+    def __init__(self, att1):
+        self.instructor_id = att1
+
+    def create_class(self, class_name):
+
+        c = Classtb(className=class_name, instructorID=self.instructor_id)
+        db.session.add(c)
+        db.session.commit()
+
+        return ""
+
+    def create_team(self, team_name, class_id):
+
+        t = Team(teamName=team_name, classID=class_id)
+        db.session.add(t)
+        db.session.commit()
+
+        return ""
+
+    def assign_survey_class(self, team_name, class_id):
+        t = SurveyTeam(teamName=team_name, classID=class_id)
+        db.session.add(t)
+        db.session.commit()
+
+        return ""
+
+    def invite_student(self):
+
+        return ""
+
+    def get_survey_list(self):
+        x = db.session.query(Survey).filter(Survey.instructorID == self.instructor_id).all()
+        survey_dict_array = []
+        if x:
+            for j in x:
+                survey_dict = {
+                    "name": j.get_name(),
+                    "instructorName": j.get_instructor(),
+                    "surveyID": j.get_id(),
+                    "date": j.get_date()
+                }
+                survey_dict_array.append(survey_dict)
+
+        return survey_dict_array
+
+    def add_new_survey(self, content):
+
+        s = SurveyObj(content["survey"], content["instructor"], content["questionList"], self.instructor_id)
+        s.add_survey()
+
+        return ""
+
+    def retrieve_survey_dict(self, survey_id, student_id):
+
+        a = SurveyFillObj(survey_id)
+        a.construct_survey()
+
+        return a.get_survey_dict(student_id)
+
+    def modify_new_survey(self):
+
+        return ""
+
+    def display_performance(self):
+
         return ""
 
 

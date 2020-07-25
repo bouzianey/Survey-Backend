@@ -1,6 +1,7 @@
 from init import db
 from datetime import datetime
 
+from flask_login import UserMixin
 
 class Classtb(db.Model):
 
@@ -59,7 +60,7 @@ class Instructor(db.Model):
 		return '{}'.format(self.instructorName)
 
 	def get_email(self):
-		return '{}'.format(self.eamil)
+		return '{}'.format(self.email)
 
 
 class User(db.Model):

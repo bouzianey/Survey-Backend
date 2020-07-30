@@ -143,7 +143,7 @@ class SurveyFillObj:
                     question_dict = {
                         "id": i.get_id(),
                         "student_id": exp.get_id(),
-                        "student_name": exp.get_team_name(),
+                        "student_name": exp.get_name(),
                         "type": i.get_type(),
                         "repetition": i.get_repetition(),
                         "label": i.get_label(),
@@ -246,6 +246,8 @@ class InstructorObj:
 
     def __init__(self, att1):
         self.instructor_id = att1
+        x = db.session.query(Instructor).filter(Instructor.instructorID == self.instructor_id).first()
+        self.instructor_name = x.get_instructor_name()
 
     def create_class(self, class_name):
 
@@ -264,9 +266,6 @@ class InstructorObj:
         return ""
 
     def assign_survey_class(self, team_name, class_id):
-        t = SurveyTeam(teamName=team_name, classID=class_id)
-        db.session.add(t)
-        db.session.commit()
 
         return ""
 
@@ -291,7 +290,7 @@ class InstructorObj:
 
     def add_new_survey(self, content):
 
-        s = SurveyObj(content["survey"], content["instructor"], content["questionList"], self.instructor_id)
+        s = SurveyObj(content["survey"], self.instructor_name, content["questionList"], self.instructor_id)
         s.add_survey()
 
         return ""
@@ -310,6 +309,33 @@ class InstructorObj:
     def display_performance(self):
 
         return ""
+
+
+class StudentObj:
+
+    def __init__(self, att1):
+        self.student_id = att1
+
+    def get_student_survey_list(self):
+
+        q = db.session.query(User).filter(User.userID == self.student_id).first()
+        team_id = q.get_team_id()
+        x = db.session.query(Team).filter(Team.teamID == team_id).first()
+        class_id = x.get_class_id()
+        z = db.session.query(Survey).filter(SurveyClass.classID == class_id).all()
+        survey_dict_array = []
+        if z:
+            for j in z:
+                survey_dict = {
+                    "name": j.get_name(),
+                    "instructorName": j.get_instructor(),
+                    "surveyID": j.get_id(),
+                    "date": j.get_date()
+                }
+                survey_dict_array.append(survey_dict)
+
+        return survey_dict_array
+
 
 
 

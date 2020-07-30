@@ -1,7 +1,7 @@
 from init import db
 from datetime import datetime
-
 from flask_login import UserMixin
+
 
 class Classtb(db.Model):
 
@@ -67,8 +67,8 @@ class User(db.Model):
 
 	userID = db.Column(db.Integer, autoincrement=True, primary_key=True)
 	userName = db.Column(db.String(64), nullable=False)
-	email = db.Column(db.String(64), nullable=True)
-	password = db.Column(db.String(64), nullable=True)
+	email = db.Column(db.String(64), nullable=False)
+	password = db.Column(db.String(64), nullable=False)
 	teamID = db.Column(db.Integer, db.ForeignKey('team.teamID'))
 	team = db.relationship('Team', backref='team_user')
 
@@ -78,28 +78,31 @@ class User(db.Model):
 	def get_id(self):
 		return '{}'.format(self.userID)
 
-	def get_team_name(self):
+	def get_email(self):
+		return '{}'.format(self.email)
+
+	def get_name(self):
 		return '{}'.format(self.userName)
 
 	def get_team_id(self):
 		return '{}'.format(self.teamID)
 
 
-class SurveyTeam(db.Model):
+class SurveyClass(db.Model):
 
-	surveyTeamID = db.Column(db.Integer, autoincrement=True, primary_key=True)
+	SurveyClassID = db.Column(db.Integer, autoincrement=True, primary_key=True)
 	surveyID = db.Column(db.Integer, db.ForeignKey('survey.surveyID'), nullable=False)
-	teamID = db.Column(db.Integer, db.ForeignKey('team.teamID'), nullable=False)
-	team = db.relationship('Team', backref='survey_team')
+	classID = db.Column(db.Integer, db.ForeignKey('classtb.classID'), nullable=False)
+	classtb = db.relationship('Classtb', backref='survey_class')
 
 	def __repr__(self):
-		return f"SurveyTeam('{self.surveyTeamID}')"
+		return f"SurveyClass('{self.SurveyClassID}')"
 
-	def get_team_id(self):
-		return '{}'.format(self.teamID)
+	def get_class_id(self):
+		return '{}'.format(self.classID)
 
-	def get_survey_team_id(self):
-		return '{}'.format(self.surveyTeamID)
+	def get_survey_class_id(self):
+		return '{}'.format(self.SurveyClassID)
 
 	def get_survey_id(self):
 		return '{}'.format(self.surveyID)

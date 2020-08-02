@@ -203,6 +203,10 @@ def get_api():
 @cross_origin()
 def post_survey_response():
 
+    content = request.json
+    o = StudentObj(content["studentID"])
+    o.save_survey_response(content)
+
     return jsonify("")
 
 

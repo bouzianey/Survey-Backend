@@ -215,8 +215,9 @@ class Surveyresponse(db.Model):
 
 class Questionresponse(db.Model):
 	questionResponseID = db.Column(db.Integer, autoincrement=True, primary_key=True)
-	type = db.Column(db.String(10), nullable=True)
-	content = db.Column(db.String(300), nullable=True)
+	type = db.Column(db.String(10), nullable=False)
+	content = db.Column(db.String(300), nullable=False)
+	student_ID = db.Column(db.Integer, db.ForeignKey('user.userID'), nullable=False)
 	questionID = db.Column(db.Integer, db.ForeignKey('question.questionID'), nullable=False)
 	surveyResponseID = db.Column(db.Integer, db.ForeignKey('surveyresponse.surveyResponseID'), nullable=False)
 	surveyresponse = db.relationship('Surveyresponse', backref='question_response')
@@ -226,6 +227,9 @@ class Questionresponse(db.Model):
 
 	def get_id(self):
 		return '{}'.format(self.questionResponseID)
+
+	def get_student_id(self):
+		return '{}'.format(self.studentID)
 
 	def get_survey_response_id(self):
 		return '{}'.format(self.surveyResponseID)
@@ -243,7 +247,6 @@ class Questionresponse(db.Model):
 class Optionresponse(db.Model):
 	optionResponseID = db.Column(db.Integer, autoincrement=True, primary_key=True)
 	content = db.Column(db.String(300), nullable=False)
-	studentID = db.Column(db.Integer, nullable=False)
 	questionResponseID = db.Column(db.Integer, db.ForeignKey('questionresponse.questionResponseID'), nullable=False)
 	questionresponse = db.relationship('Questionresponse', backref='question_response')
 

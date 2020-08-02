@@ -322,10 +322,11 @@ class StudentObj:
         team_id = q.get_team_id()
         x = db.session.query(Team).filter(Team.teamID == team_id).first()
         class_id = x.get_class_id()
-        z = db.session.query(Survey).filter(SurveyClass.classID == class_id).all()
+        z = db.session.query(SurveyClass).filter(SurveyClass.classID == class_id).all()
         survey_dict_array = []
         if z:
-            for j in z:
+            for i in z:
+                j = db.session.query(Survey).filter(Survey.surveyID == i.get_survey_id()).first()
                 survey_dict = {
                     "name": j.get_name(),
                     "instructorName": j.get_instructor(),
@@ -336,7 +337,41 @@ class StudentObj:
 
         return survey_dict_array
 
+    def save_survey_response(self, survey_response_dict):
 
+            s = Surveyresponse(surveyName=survey_response_dict["survey"], surveyID=survey_response_dict["surveyID"],
+                               studentID=survey_response_dict["studentID"])
+            db.session.add(s)
+            db.session.commit()
+            sr_id = s.get_response_id()
+            content = survey_response_dict["responseList"]
+            for i in content:
+                if "options" in i:
+                    if "studentId" in i:
+                        q = Questionresponse(content="empty", surveyResponseID=sr_id,
+                                             questionID=i["questionId"],
+                                             type="radio", student_ID=i["studentId"])
+                    else:
+                        q = Questionresponse(content="empty", surveyResponseID=sr_id,
+                                             questionID=i["questionId"], type="radio", student_ID=0)
+                    db.session.add(q)
+                    db.session.commit()
+                    q_id = q.get_id()
+                    for j in i["options"]:
+                        q = Optionresponse(content=j["content"], questionResponseID=q_id)
+                        db.session.add(q)
+                        db.session.commit()
+                else:
+                    if "studentId" in i:
+                        q = Questionresponse(content=i["content"], surveyResponseID=sr_id,
+                                             questionID=i["questionId"], type="text", student_ID=i["studentId"])
+                    else:
+                        q = Questionresponse(content=i["content"], surveyResponseID=sr_id,
+                                             questionID=i["questionId"], type="text",
+                                             student_ID=0)
+                    db.session.add(q)
+                    db.session.commit()
+            return ""
 
 
 

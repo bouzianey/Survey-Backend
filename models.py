@@ -62,6 +62,9 @@ class Instructor(db.Model):
 	def get_email(self):
 		return '{}'.format(self.email)
 
+	def get_password(self):
+		return '{}'.format(self.password)
+
 
 class User(db.Model):
 
@@ -217,6 +220,8 @@ class Questionresponse(db.Model):
 	questionResponseID = db.Column(db.Integer, autoincrement=True, primary_key=True)
 	type = db.Column(db.String(10), nullable=False)
 	content = db.Column(db.String(300), nullable=False)
+	author_id = db.Column(db.Integer, nullable=False)
+	author_name = db.Column(db.String(20), nullable=False)
 	student_ID = db.Column(db.Integer, db.ForeignKey('user.userID'), nullable=False)
 	questionID = db.Column(db.Integer, db.ForeignKey('question.questionID'), nullable=False)
 	surveyResponseID = db.Column(db.Integer, db.ForeignKey('surveyresponse.surveyResponseID'), nullable=False)
@@ -229,7 +234,13 @@ class Questionresponse(db.Model):
 		return '{}'.format(self.questionResponseID)
 
 	def get_student_id(self):
-		return '{}'.format(self.studentID)
+		return '{}'.format(self.student_ID)
+
+	def get_author_name(self):
+		return '{}'.format(self.author_name)
+
+	def get_author_id(self):
+		return '{}'.format(self.author_id)
 
 	def get_survey_response_id(self):
 		return '{}'.format(self.surveyResponseID)
@@ -243,27 +254,68 @@ class Questionresponse(db.Model):
 	def get_content(self):
 		return '{}'.format(self.content)
 
+	def get_content(self):
+		return '{}'.format(self.content)
+
 
 class Optionresponse(db.Model):
 	optionResponseID = db.Column(db.Integer, autoincrement=True, primary_key=True)
-	content = db.Column(db.String(300), nullable=False)
+	content = db.Column(db.Integer, nullable=False)
+	author_id = db.Column(db.Integer, nullable=False)
+	author_name = db.Column(db.String(20), nullable=False)
 	questionResponseID = db.Column(db.Integer, db.ForeignKey('questionresponse.questionResponseID'), nullable=False)
 	questionresponse = db.relationship('Questionresponse', backref='question_response')
 
 	def __repr__(self):
-		return f"Optionresponse('{self.optionResponseID}','{self.content}','{self.studentID}')"
+		return f"Optionresponse('{self.optionResponseID}','{self.content}')"
 
 	def get_id(self):
 		return '{}'.format(self.optionResponseID)
 
-	def get_student_id(self):
-		return '{}'.format(self.studentID)
+	def get_content(self):
+		return '{}'.format(self.content)
+
+	def get_author_name(self):
+		return '{}'.format(self.author_name)
+
+	def get_author_id(self):
+		return '{}'.format(self.author_id)
+
+	def get_question_response_id(self):
+		return '{}'.format(self.questionResponseID)
+
+
+class ProFeedback(db.Model):
+
+	feedbackID = db.Column(db.Integer, autoincrement=True, primary_key=True)
+	surveyName = db.Column(db.String(64), nullable=False)
+	dt_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+	content = db.Column(db.String(500), nullable=False)
+	userID = db.Column(db.Integer, db.ForeignKey('user.userID'))
+	surveyID = db.Column(db.Integer, db.ForeignKey('survey.surveyID'))
+	survey = db.relationship('Survey', backref='survey_feedback')
+
+	def __repr__(self):
+		return f"Feedback('{self.feedbackID}','{self.surveyName}')"
+
+	def get_id(self):
+		return '{}'.format(self.feedbackID)
+
+	def get_survey_name(self):
+		return '{}'.format(self.surveyName)
 
 	def get_content(self):
 		return '{}'.format(self.content)
 
-	def get_question_response_id(self):
-		return '{}'.format(self.questionResponseID)
+	def get_date(self):
+		return '{}'.format(self.dt_time)
+
+	def get_user_id(self):
+		return '{}'.format(self.userID)
+
+	def get_survey_id(self):
+		return '{}'.format(self.surveyID)
+
 
 
 

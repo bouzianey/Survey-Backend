@@ -21,3 +21,10 @@ def send_email(sender, recipient, student_name, student_email, pass_word):
     msg = Message(subject, sender=sender, recipients=recipient)
     msg.html = render_template('invitation.html', name=student_name, email=student_email, pwd=pass_word)
     send_async_email(app, msg)
+
+
+def notify_student(sender, recipient, student_name, survey_list):
+    subject = 'Warning! There are some missing Survey Responses'
+    msg = Message(subject, sender=sender, recipients=recipient)
+    msg.html = render_template('notification.html', name=student_name, survey_list=survey_list)
+    send_async_email(app, msg)

@@ -6,6 +6,7 @@ import pprint, string, random
 from surveyManager import *
 from init import app
 from email_gen import send_email
+from email_gen import notify_student
 from config import ADMINS
 
 
@@ -44,14 +45,121 @@ def add_student_post():
     else:
         result = "failed"
 
-    return result
+    return jsonify(result)
+
+
+@app.route('/notify_student_missed_surveys', methods=['POST'])
+@cross_origin()
+def notify_student_missed_surveys():
+
+    content = request.json
+    student_id = int(content["studentID"])
+    q = db.session.query(User).filter(User.userID == student_id).first()
+    recipient = [q.get_email()]
+    notify_student(ADMINS[0], recipient, content["studentName"], content["surveyList"])
+    return jsonify("")
+
+
+@app.route('/get_instructor_feedback_list', methods=['POST'])
+@cross_origin()
+def get_instructor_feedback_list():
+
+    content = request.json
+    student_id = int(content["studentID"])
+
+    res_dict = {
+        "result": "success"
+    }
+    q = db.session.query(ProFeedback).filter(ProFeedback.userID == student_id).all()
+    if q:
+        dict_array = []
+        for i in q:
+            dt = i.get_date()
+            chunks = dt.split('.')
+            data = {
+                "surveyName": i.get_survey_name(),
+                "date": chunks[0],
+                "content": i.get_content()
+            }
+            dict_array.append(data)
+        res_dict.update({"feedbackList": []})
+        res_dict.update({"feedbackList": dict_array})
+    else:
+        res_dict.update({"result": "failed"})
+
+    return jsonify(res_dict)
+
+
+@app.route('/post_instructor_feedback', methods=['POST'])
+@cross_origin()
+def post_instructor_feedback():
+
+    result = "success"
+    content = request.json
+    student_id = int(content["studentID"])
+    survey_id = int(content["surveyID"])
+    q = db.session.query(ProFeedback).filter(ProFeedback.userID == student_id).\
+        filter(ProFeedback.surveyID == survey_id).first()
+
+    if q is None:
+        j = db.session.query(Survey).filter(Survey.surveyID == survey_id).first()
+        s = ProFeedback(surveyName=j.get_name(), userID=student_id,
+                        surveyID=survey_id, content=content["feedback_comment"])
+        db.session.add(s)
+        db.session.commit()
+    else:
+        result = "failed"
+
+    return jsonify(result)
+
+
+@app.route('/get_student_contribution', methods=['POST'])
+@cross_origin()
+def get_student_contribution():
+
+    content = request.json
+    idx = int(content["teamID"])
+
+    q = db.session.query(User).filter(User.teamID == idx).all()
+    q1 = db.session.query(Survey).filter(Survey.surveyID == SurveyClass.surveyID).\
+        filter(SurveyClass.classID == Team.classID).filter(Team.teamID == idx).all()
+    res_dict = {
+        "result": "success",
+        "surveyTotal": len(q1)
+    }
+    if q and q1:
+
+        dict_array = []
+        for x in q:
+            score = 0
+            missed_survey = []
+            for z in q1:
+                q2 = db.session.query(Surveyresponse).filter(Surveyresponse.studentID == x.get_id()).\
+                    filter(Surveyresponse.surveyID == z.get_id()).first()
+                if q2:
+                    score = score + 1
+                else:
+                    missed_survey.append(z.get_name())
+            data = {
+                "studentID": x.get_id(),
+                "studentName": x.get_name(),
+                "score": score,
+                "missed_survey": missed_survey
+            }
+            dict_array.append(data)
+        res_dict.update({"studentContributionList": []})
+        res_dict.update({"studentContributionList": dict_array})
+    else:
+        res_dict.update({"result": "failed"})
+
+    return jsonify(res_dict)
 
 
 @app.route('/add_class_post', methods=['POST'])
 @cross_origin()
 def add_class_post():
 
-    result = "succeed"
+    result = "success"
     content = request.json
     q = db.session.query(Classtb).filter(Classtb.className == content["className"]).first()
     if q is None:
@@ -61,14 +169,14 @@ def add_class_post():
         db.session.commit()
     else:
         result = "failed"
-    return result
+    return jsonify(result)
 
 
 @app.route('/add_team_post', methods=['POST'])
 @cross_origin()
 def add_team_post():
 
-    result = "succeed"
+    result = "success"
     content = request.json
     q = db.session.query(Team).filter(Team.teamName == content["teamName"]).first()
     if q is None:
@@ -78,8 +186,8 @@ def add_team_post():
         db.session.commit()
     else:
         result = "failed"
-
-    return result
+    print(result)
+    return jsonify(result)
 
 
 @app.route('/get_team_list', methods=['POST'])
@@ -107,7 +215,7 @@ def get_team_list():
     else:
         res_dict.update({"result": "failed"})
 
-    return res_dict
+    return jsonify(res_dict)
 
 
 @app.route('/get_class_list', methods=['POST'])
@@ -134,7 +242,23 @@ def get_class_list():
     else:
         res_dict.update({"result": "failed"})
 
-    return res_dict
+    return jsonify(res_dict)
+
+
+@app.route('/get_team_student_list', methods=['POST'])
+@cross_origin()
+def get_team_student_list():
+    content = request.json
+    user_id = int(content["user_id"])
+    team_id = content["team_id"]
+    a = InstructorObj(user_id)
+    res_dict = {
+        "result": "success"
+    }
+    res_dict.update({"studentList": []})
+    res_dict.update({"studentList": a.get_team_students(team_id)})
+
+    return jsonify(res_dict)
 
 
 @app.route('/add_survey_api', methods=['POST'])
@@ -162,9 +286,26 @@ def set_survey_to_class():
         db.session.add(c)
         db.session.commit()
     else:
-        result = "The survey is already assigned to this class"
+        result = "failed"
 
-    return result
+    return jsonify(result)
+
+
+@app.route('/get_class_survey_list', methods=['POST'])
+@cross_origin()
+def get_class_survey_list():
+    obj = request.json
+    user_id = int(obj["user_id"])
+    class_id = int(obj["class_id"])
+    a = InstructorObj(user_id)
+
+    res_dict = {
+        "result": "success"
+    }
+    res_dict.update({"surveyList": []})
+    res_dict.update({"surveyList": a.get_class_survey_list(class_id)})
+
+    return jsonify(res_dict)
 
 
 @app.route('/get_student_survey_list', methods=['POST'])
@@ -186,6 +327,20 @@ def get_student_survey():
     a.construct_survey()
 
     return jsonify(a.get_survey_dict(obj["id"]))
+
+
+@app.route('/get_student_survey_performance', methods=['POST'])
+@cross_origin()
+def get_student_survey_performance():
+
+    obj = request.json
+    survey_id = int(obj["survey_id"])
+    student_id = int(obj["student_id"])
+    a = SurveyFillObj(survey_id)
+    a.construct_survey()
+    j = a.get_student_survey_performance(student_id)
+
+    return jsonify(j)
 
 
 @app.route('/get_api', methods=['POST'])
@@ -224,8 +379,7 @@ def get_survey_list():
 @cross_origin()
 def login_instructor():
     content = request.json
-    pprint.pprint(content)
-    q = db.session.query(Instructor).filter(Instructor.email == content["email"]).first()
+    q = db.session.query(Instructor).filter(Instructor.email == content["email"]).filter(Instructor.password == content["password"]).first()
     if q:
         data = {
             "logged_in": True,
@@ -241,15 +395,15 @@ def login_instructor():
             "user": {}
         }
 
-    return data
+    return jsonify(data)
 
 
 @app.route('/login_student', methods=['POST'])
 @cross_origin()
 def login_student():
+
     content = request.json
-    pprint.pprint(content)
-    q = db.session.query(User).filter(User.email == content["email"]).first()
+    q = db.session.query(User).filter(User.email == content["email"]).filter(User.password == content["password"]).first()
     if q:
         data = {
             "logged_in": True,
@@ -265,14 +419,14 @@ def login_student():
             "user": {}
         }
 
-    return data
+    return jsonify(data)
 
 
 @app.route('/signup_instructor', methods=['GET', 'POST'])
 @cross_origin()
 def signup_instructor():
+
     content = request.json
-    pprint.pprint(content)
     q = db.session.query(Instructor).filter(Instructor.email == content["email"]).first()
 
     if q is None:
@@ -302,7 +456,7 @@ def signup_instructor():
             }
         }
 
-    return data
+    return jsonify(data)
 
 
 @app.route('/logout_instructor')

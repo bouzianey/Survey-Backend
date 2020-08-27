@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <p>Dear {{name}},</p>
+    <p>Please login to your account in order to complete the pending surveys.
+    <p><b>List of Missing Surveys :</b></p>
+    <ul>
+    {% for each_step in survey_list %}
+                    <li>{{ each_step }}</li>
+    {% endfor %}
+    </ul>
+    <p>Regards,</p>
+    <p>The <code>Smart Survey</code> Admin</p>
+</body>
+</html>

@@ -399,12 +399,10 @@ class InstructorObj:
         return survey_dict_array
 
     def assign_survey_class(self, team_name, class_id):
-
         return ""
 
     def invite_student(self):
-
-        return ""
+        return "Echo"
 
     def get_survey_list(self):
         x = db.session.query(Survey).filter(Survey.instructorID == self.instructor_id).all()

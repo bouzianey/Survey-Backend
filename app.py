@@ -380,7 +380,15 @@ def get_survey_list():
 def login_instructor():
     email ="boho@gmail.com"
     password = "123456"
-    pprint.pprint(request.json)
+    print("get data =======")
+    pprint.pprint(request.get_data())
+    print("data ===========")
+    pprint.pprint(request.data)
+    print("JSON Module ===========")
+    pprint.pprint(request.json_module)
+    print("Args Items ===========")
+    pprint.pprint(request.args.items())
+
     q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:
         data = {

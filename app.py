@@ -13,7 +13,7 @@ from config import ADMINS
 @app.route('/', methods=['GET', 'POST'])
 def my_index():
 
-    return render_template("index.html", token=" Yacine Bouziane")
+    return render_template("index.html", token="OWL")
 
 
 @app.route('/add_student_post', methods=['POST'])

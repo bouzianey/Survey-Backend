@@ -378,9 +378,10 @@ def get_survey_list():
 @app.route('/login_instructor', methods=['POST'])
 @cross_origin()
 def login_instructor():
-    content = request.json
+    email ="b@h.fr"
+    password = "123456"
     pprint.pprint(request.json)
-    q = db.session.query(Instructor).filter(Instructor.email == content["email"]).filter(Instructor.password == content["password"]).first()
+    q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:
         data = {
             "logged_in": True,

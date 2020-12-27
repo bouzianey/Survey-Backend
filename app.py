@@ -379,6 +379,7 @@ def get_survey_list():
 @cross_origin()
 def login_instructor():
     content = request.json
+    pprint.pprint(request.json)
     q = db.session.query(Instructor).filter(Instructor.email == content["email"]).filter(Instructor.password == content["password"]).first()
     if q:
         data = {

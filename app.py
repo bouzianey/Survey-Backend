@@ -378,15 +378,19 @@ def get_survey_list():
 @app.route('/login_instructor', methods=['POST'])
 @cross_origin()
 def login_instructor():
-    email ="boho@gmail.com"
+    email = "boho@gmail.com"
     password = "123456"
+
     print("get data =======")
     print(request.get_data())
     print("data ===========")
     print(request.data)
-    print("BluePrint ===========")
-    print(request.blueprint)
-
+    print("Json ===========")
+    print(request.json)
+    print("Get Json ===========")
+    print(request.get_json())
+    print("form Items ===========")
+    print(request.form.items())
 
     q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:

@@ -382,9 +382,9 @@ def login_instructor():
     password = "123456"
 
     print("get data =======")
-    print(request.get_data())
+    print(request.get_data(parse_form_data=True))
     print("data ===========")
-    print(request.data)
+    print(request.data, request.data)
     print("Json ===========")
     print(request.json)
     print("Get Json ===========")

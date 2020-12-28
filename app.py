@@ -381,13 +381,12 @@ def login_instructor():
     email ="boho@gmail.com"
     password = "123456"
     print("get data =======")
-    pprint.pprint(request.get_data())
+    print(request.get_data())
     print("data ===========")
-    pprint.pprint(request.data)
-    print("JSON Module ===========")
-    pprint.pprint(request.json_module)
-    print("Get Json Items ===========")
-    pprint.pprint(request.get_json())
+    print(request.data)
+    print("BluePrint ===========")
+    print(request.blueprint)
+
 
     q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:

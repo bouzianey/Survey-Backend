@@ -381,8 +381,6 @@ def login_instructor():
     email = "boho@gmail.com"
     password = "123456"
 
-    print("get data =======")
-    print(request.get_data(parse_form_data=True))
     print("data ===========")
     print(request.data, request.data)
     print("Json ===========")
@@ -391,6 +389,8 @@ def login_instructor():
     print(request.get_json())
     print("form Items ===========")
     print(request.form.items())
+    print("get data =======")
+    print(request.get_data(parse_form_data=True))
 
     q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:

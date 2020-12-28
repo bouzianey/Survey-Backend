@@ -386,8 +386,8 @@ def login_instructor():
     pprint.pprint(request.data)
     print("JSON Module ===========")
     pprint.pprint(request.json_module)
-    print("Args Items ===========")
-    pprint.pprint(request.args.items())
+    print("Get Json Items ===========")
+    pprint.pprint(request.get_json())
 
     q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:

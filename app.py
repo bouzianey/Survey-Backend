@@ -382,17 +382,13 @@ def login_instructor():
     password = "123456"
 
     print("data ===========")
-    print(request.data, request.data)
-    print("Json ===========")
-    print(request.json)
-    print("Get Json ===========")
-    print(request.get_json())
+    print(request.data)
     print("form Items ===========")
-    print(request.form.items())
+    print(request.form.items().__dict__.values())
     print("get data =======")
     print(request.get_data(parse_form_data=True))
-    print(" Data parsed =============")
-    print(request.form.listvalues())
+    print("email pass data =======")
+    print(" email : ", request.form["email"], "Pass : ", request.form["password"])
     q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:
         data = {

@@ -384,7 +384,7 @@ def login_instructor():
     print("data ===========")
     print(request.data)
     print("form Items ===========")
-    print(request.form.items().__dict__.values())
+    print(request.form.values())
     print("get data =======")
     print(request.get_data(parse_form_data=True))
     print("email pass data =======")

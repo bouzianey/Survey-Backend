@@ -1,5 +1,6 @@
 from flask import render_template, request, jsonify
 from flask_cors import cross_origin
+import json
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_login import UserMixin
 import pprint, string, random
@@ -388,8 +389,9 @@ def login_instructor():
     print("get data =======")
     print(request.get_data(parse_form_data=True))
     print("=========== Splitter =========")
-    x = request.get_data(parse_form_data=True).split('"')
+    x = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     print(x)
+    print(x["email"], x["password"])
 
     q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:

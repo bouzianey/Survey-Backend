@@ -391,7 +391,8 @@ def login_instructor():
     print(request.form.items())
     print("get data =======")
     print(request.get_data(parse_form_data=True))
-
+    print(" Data parsed =============")
+    print(request.form.listvalues())
     q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
     if q:
         data = {

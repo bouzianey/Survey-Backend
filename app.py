@@ -22,12 +22,12 @@ def my_index():
 def add_student_post():
 
     result = "success"
-    content = request.json
-    q = db.session.query(User).filter(User.userName == content["studentName"]).filter(User.email == content["studentEmail"]).first()
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
+    q = db.session.query(User).filter(User.userName == content["studentName"])\
+        .filter(User.email == content["studentEmail"]).first()
 
     if q is None:
-
-        #generate a random password for student
+        # generate a random password for student
         password_characters = string.ascii_letters + string.digits + string.punctuation
         password = []
 
@@ -53,7 +53,7 @@ def add_student_post():
 @cross_origin()
 def notify_student_missed_surveys():
 
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     student_id = int(content["studentID"])
     q = db.session.query(User).filter(User.userID == student_id).first()
     recipient = [q.get_email()]
@@ -65,7 +65,7 @@ def notify_student_missed_surveys():
 @cross_origin()
 def get_instructor_feedback_list():
 
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     student_id = int(content["studentID"])
 
     res_dict = {
@@ -96,7 +96,7 @@ def get_instructor_feedback_list():
 def post_instructor_feedback():
 
     result = "success"
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     student_id = int(content["studentID"])
     survey_id = int(content["surveyID"])
     q = db.session.query(ProFeedback).filter(ProFeedback.userID == student_id).\
@@ -118,7 +118,7 @@ def post_instructor_feedback():
 @cross_origin()
 def get_student_contribution():
 
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     idx = int(content["teamID"])
 
     q = db.session.query(User).filter(User.teamID == idx).all()
@@ -161,7 +161,7 @@ def get_student_contribution():
 def add_class_post():
 
     result = "success"
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     q = db.session.query(Classtb).filter(Classtb.className == content["className"]).first()
     if q is None:
         idx = content["id"]
@@ -178,7 +178,7 @@ def add_class_post():
 def add_team_post():
 
     result = "success"
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     q = db.session.query(Team).filter(Team.teamName == content["teamName"]).first()
     if q is None:
         idx = content["id"]
@@ -195,7 +195,7 @@ def add_team_post():
 @cross_origin()
 def get_team_list():
 
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     idx = int(content["id"])
 
     res_dict = {
@@ -222,7 +222,7 @@ def get_team_list():
 @app.route('/get_class_list', methods=['POST'])
 @cross_origin()
 def get_class_list():
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     idx = int(content["id"])
 
     res_dict = {
@@ -249,7 +249,7 @@ def get_class_list():
 @app.route('/get_team_student_list', methods=['POST'])
 @cross_origin()
 def get_team_student_list():
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     user_id = int(content["user_id"])
     team_id = content["team_id"]
     a = InstructorObj(user_id)
@@ -265,7 +265,7 @@ def get_team_student_list():
 @app.route('/add_survey_api', methods=['POST'])
 @cross_origin()
 def add_survey_api():
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     idx = int(content["id"])
     a = InstructorObj(idx)
     a.add_new_survey(content)
@@ -277,7 +277,7 @@ def add_survey_api():
 @cross_origin()
 def set_survey_to_class():
 
-    obj = request.json
+    obj = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     class_id = int(obj["classID"])
     survey_id = int(obj["surveyID"])
     result = "success"
@@ -295,7 +295,7 @@ def set_survey_to_class():
 @app.route('/get_class_survey_list', methods=['POST'])
 @cross_origin()
 def get_class_survey_list():
-    obj = request.json
+    obj = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     user_id = int(obj["user_id"])
     class_id = int(obj["class_id"])
     a = InstructorObj(user_id)
@@ -312,7 +312,7 @@ def get_class_survey_list():
 @app.route('/get_student_survey_list', methods=['POST'])
 @cross_origin()
 def get_student_survey_list():
-    obj = request.json
+    obj = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     idx = int(obj["id"])
     a = StudentObj(idx)
 
@@ -322,7 +322,7 @@ def get_student_survey_list():
 @app.route('/get_student_survey', methods=['POST'])
 @cross_origin()
 def get_student_survey():
-    obj = request.json
+    obj = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     idx = int(obj["survey_id"])
     a = SurveyFillObj(idx)
     a.construct_survey()
@@ -334,7 +334,7 @@ def get_student_survey():
 @cross_origin()
 def get_student_survey_performance():
 
-    obj = request.json
+    obj = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     survey_id = int(obj["survey_id"])
     student_id = int(obj["student_id"])
     a = SurveyFillObj(survey_id)
@@ -347,7 +347,7 @@ def get_student_survey_performance():
 @app.route('/get_api', methods=['POST'])
 @cross_origin()
 def get_api():
-    st = request.json
+    st = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     idx = int(st)
     a = SurveyFillObj(idx)
     a.construct_survey()
@@ -359,7 +359,7 @@ def get_api():
 @cross_origin()
 def post_survey_response():
 
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     o = StudentObj(content["studentID"])
     o.save_survey_response(content)
 
@@ -370,7 +370,7 @@ def post_survey_response():
 @cross_origin()
 def get_survey_list():
 
-    st = request.json
+    st = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     idx = int(st)
     a = InstructorObj(idx)
     return jsonify(a.get_survey_list())
@@ -379,21 +379,9 @@ def get_survey_list():
 @app.route('/login_instructor', methods=['POST'])
 @cross_origin()
 def login_instructor():
-    email = "boho@gmail.com"
-    password = "123456"
 
-    print("data ===========")
-    print(request.data)
-    print("form Items ===========")
-    print(request.form.values())
-    print("get data =======")
-    print(request.get_data(parse_form_data=True))
-    print("=========== Splitter =========")
-    x = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
-    print(x)
-    print(x["email"], x["password"])
-
-    q = db.session.query(Instructor).filter(Instructor.email == email).filter(Instructor.password == password).first()
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
+    q = db.session.query(Instructor).filter(Instructor.email == content["email"]).filter(Instructor.password == content["password"]).first()
     if q:
         data = {
             "logged_in": True,
@@ -416,7 +404,7 @@ def login_instructor():
 @cross_origin()
 def login_student():
 
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     q = db.session.query(User).filter(User.email == content["email"]).filter(User.password == content["password"]).first()
     if q:
         data = {
@@ -440,7 +428,7 @@ def login_student():
 @cross_origin()
 def signup_instructor():
 
-    content = request.json
+    content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     q = db.session.query(Instructor).filter(Instructor.email == content["email"]).first()
 
     if q is None:

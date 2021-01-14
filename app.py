@@ -450,12 +450,7 @@ def signup_instructor():
         }
     else:
         data = {
-            "logged_in": True,
-            "user": {
-                "email": q.get_email(),
-                "id": q.get_id(),
-                "password": ""
-            }
+            "logged_in": False,
         }
 
     return jsonify(data)

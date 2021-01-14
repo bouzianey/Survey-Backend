@@ -1,3 +1,5 @@
+import os
+
 from flask import render_template, request, jsonify
 from flask_cors import cross_origin
 import json
@@ -431,7 +433,7 @@ def signup_instructor():
     content = json.loads(request.get_data(parse_form_data=True).decode("UTF-8"))
     q = db.session.query(Instructor).filter(Instructor.email == content["email"]).first()
 
-    if q is None:
+    if q is None and os.environ['REGISTRATION_KEY'] == content["key"]:
 
         flName = content["firstName"] + " " + content["lastName"]
         s = Instructor(instructorName=flName, email=content["email"], password=content["password"])
